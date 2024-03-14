@@ -5,7 +5,15 @@ import { revalidateTag } from "next/cache";
 
 const BASE_API_URL = "http://localhost:3000/";
 
-export const createTask = async (formData: FormData) => {
+export type CreateTaskResult = {
+  success: boolean;
+  message: string;
+};
+
+export const createTask = async (
+  prevState: CreateTaskResult,
+  formData: FormData
+) => {
   const data = {
     name: formData.get("name"),
     start_date: formData.get("date"),
@@ -19,10 +27,15 @@ export const createTask = async (formData: FormData) => {
   });
 
   if (!response.ok) {
-    throw new Error(response.statusText);
+    return {
+      success: false,
+      message: `${response.statusText}, please try again`,
+    };
   }
 
   revalidateTag("tasks");
+
+  return { success: true, message: "Task created" };
 };
 
 export const getTasks = async (

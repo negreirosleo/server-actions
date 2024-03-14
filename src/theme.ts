@@ -20,5 +20,8 @@ export const theme = extendTheme({
     "Black olive": "#3a3e3b",
     "Ghost white": "#f0eff4",
     "Mountbatten pink": "#9e829c",
+    "Misty Rose": "#FCE8E8",
+    "Light coral": "#F28F8F",
+    "Imperial red": "#e83838",
   },
 });

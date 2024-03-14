@@ -1,12 +1,37 @@
 "use client";
 
-import { Button, Input, Flex, Heading } from "@chakra-ui/react";
-import { useState } from "react";
-import { createTask } from "@/infra/tasks";
+import { Button, Input, Flex, Heading, Text, useToast } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
+import { createTask, CreateTaskResult } from "@/infra/tasks";
 import { SubmitButton } from "./SubmitButton";
+import { useFormState } from "react-dom";
 
 export const CreateTask = () => {
   const [formOpen, setFormOpen] = useState(false);
+  const toast = useToast();
+  const [result, formAction] = useFormState(createTask, {} as CreateTaskResult);
+
+  useEffect(() => {
+    if (result.success === false) {
+      toast({
+        title: "Error!",
+        description: result.message,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+
+    if (result.success) {
+      toast({
+        title: "Success!",
+        description: result.message,
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  }, [result, toast]);
 
   return (
     <Flex flexDir="column" gap="8px" width="320px">
@@ -25,7 +50,7 @@ export const CreateTask = () => {
       </Button>
       <Flex
         as="form"
-        action={createTask}
+        action={formAction}
         sx={{ display: formOpen ? "flex" : "none", ...formStyles }}
       >
         <Flex justifyContent="space-between">

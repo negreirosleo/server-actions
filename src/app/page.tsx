@@ -7,7 +7,7 @@ import { CreateTask } from "./components/CreateTask";
 const getTasksByDay = async () => {
   const { data: tasks } = await getTasks();
 
-  return calendarDays.map((date) => {
+  const tasksByDay = calendarDays.map((date) => {
     return {
       date,
       tasks: tasks.filter((task) => {
@@ -18,10 +18,20 @@ const getTasksByDay = async () => {
       }),
     };
   });
+
+  const tasksCount = tasksByDay.reduce((acc, nextValue) => {
+    if (nextValue.date.hasSame(DateTime.now(), "month")) {
+      return acc + nextValue.tasks.length;
+    }
+
+    return acc;
+  }, 0);
+
+  return { tasksByDay, tasksCount };
 };
 
 export default async function Home() {
-  const tasksByDay = await getTasksByDay();
+  const { tasksByDay, tasksCount } = await getTasksByDay();
 
   return (
     <Flex
@@ -32,7 +42,7 @@ export default async function Home() {
       gap="48px"
     >
       <Heading margin="36px 0 0">SERVER ACTIONS ARE COOL!</Heading>
-      <CreateTask />
+      <CreateTask tasksCount={tasksCount} />
 
       <Grid
         width="fit-content"

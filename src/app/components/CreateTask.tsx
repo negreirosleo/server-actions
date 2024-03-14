@@ -1,15 +1,25 @@
 "use client";
 
 import { Button, Input, Flex, Heading, Text, useToast } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useOptimistic } from "react";
 import { createTask, CreateTaskResult } from "@/infra/tasks";
 import { SubmitButton } from "./SubmitButton";
 import { useFormState } from "react-dom";
+import { DateTime } from "luxon";
 
-export const CreateTask = () => {
+export const CreateTask = ({ tasksCount }: { tasksCount: number }) => {
   const [formOpen, setFormOpen] = useState(false);
   const toast = useToast();
   const [result, formAction] = useFormState(createTask, {} as CreateTaskResult);
+  const [optmisticTaskCount, addOptimistic] = useOptimistic<number, string>(
+    tasksCount,
+    (currentState, date) => {
+      if (DateTime.fromISO(date).hasSame(DateTime.now(), "month")) {
+        return currentState + 1;
+      }
+      return currentState;
+    }
+  );
 
   useEffect(() => {
     if (result.success === false) {
@@ -50,7 +60,10 @@ export const CreateTask = () => {
       </Button>
       <Flex
         as="form"
-        action={formAction}
+        action={async (formData: FormData) => {
+          addOptimistic(formData.get("date") as string);
+          await formAction(formData);
+        }}
         sx={{ display: formOpen ? "flex" : "none", ...formStyles }}
       >
         <Flex justifyContent="space-between">
@@ -71,6 +84,7 @@ export const CreateTask = () => {
           <SubmitButton>Submit</SubmitButton>
         </Flex>
       </Flex>
+      <Text>Tasks this month: {optmisticTaskCount}</Text>
     </Flex>
   );
 };

@@ -12,11 +12,15 @@ export const createTask = async (formData: FormData) => {
     end_date: formData.get("date"),
   };
 
-  await fetch(`${BASE_API_URL}/api/v1/tasks`, {
+  const response = await fetch(`${BASE_API_URL}/api/v1/tasks`, {
     method: "POST",
     body: JSON.stringify(data),
     headers: { "Content-type": "application/json; charset=UTF-8" },
   });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
 
   revalidateTag("tasks");
 };

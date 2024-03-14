@@ -1,95 +1,89 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { Heading, Grid, GridItem, Text, Flex, Box } from "@chakra-ui/react";
+import { DateTime } from "luxon";
+import { calendarDays } from "../utils/calendar";
+import { getTasks } from "@/infra/tasks";
+import { CreateTask } from "./components/CreateTask";
 
-export default function Home() {
+const getTasksByDay = async () => {
+  const { data: tasks } = await getTasks();
+
+  return calendarDays.map((date) => {
+    return {
+      date,
+      tasks: tasks.filter((task) => {
+        return (
+          DateTime.fromISO(task.startDate).startOf("day").valueOf() ===
+          date.startOf("day").valueOf()
+        );
+      }),
+    };
+  });
+};
+
+export default async function Home() {
+  const tasksByDay = await getTasksByDay();
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <Flex
+      as="main"
+      alignItems="center"
+      flexDirection="column"
+      justifyContent="center"
+      gap="48px"
+    >
+      <Heading margin="36px 0 0">SERVER ACTIONS ARE COOL!</Heading>
+      <CreateTask />
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <Grid
+        width="fit-content"
+        templateColumns="repeat(7, 1fr)"
+        justifyItems="center"
+        borderRadius="9px"
+        borderColor="Mountbatten pink"
+        borderWidth="2px"
+        borderStyle="solid"
+        bg="Thistle"
+        gap="1px"
+        padding="1px"
+      >
+        {tasksByDay.map(({ date, tasks }) => {
+          return (
+            <GridItem
+              display="flex"
+              justifyContent="space-between"
+              flexDirection="column"
+              padding="16px"
+              key={`${date.day}${date.monthShort}`}
+              w="120px"
+              h="120px"
+              borderRadius="8px"
+              borderColor="Mountbatten pink"
+              borderWidth="2px"
+              borderStyle="solid"
+              bg="Ghost white"
+              as="button"
+              sx={{
+                _hover: {
+                  borderColor: "Mountbatten pink",
+                  bg: "Thistle",
+                },
+                _active: {
+                  bg: "Mountbatten pink",
+                },
+              }}
+            >
+              <Text color="Dark purple">
+                {date.day}, {date.monthShort}
+              </Text>
+              <Box display="flex" gap="4px" alignSelf="flex-end">
+                {tasks.map((task) => (
+                  <Box key={task.id}>o</Box>
+                ))}
+              </Box>
+            </GridItem>
+          );
+        })}
+      </Grid>
+    </Flex>
   );
 }

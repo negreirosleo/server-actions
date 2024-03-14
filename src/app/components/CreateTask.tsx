@@ -3,12 +3,13 @@
 import { Button, Input, Flex, Heading } from "@chakra-ui/react";
 import { useState } from "react";
 import { createTask } from "@/infra/tasks";
+import { SubmitButton } from "./SubmitButton";
 
 export const CreateTask = () => {
   const [formOpen, setFormOpen] = useState(false);
 
   return (
-    <Flex flexDir="column" gap="8px" width="280px">
+    <Flex flexDir="column" gap="8px" width="320px">
       <Button
         borderRadius="8px"
         borderColor="Mountbatten pink"
@@ -27,9 +28,14 @@ export const CreateTask = () => {
         action={createTask}
         sx={{ display: formOpen ? "flex" : "none", ...formStyles }}
       >
-        <Heading as="h3" size="md">
-          New Task Form!
-        </Heading>
+        <Flex justifyContent="space-between">
+          <Heading as="h3" size="md">
+            New Task Form!
+          </Heading>
+          <Button size="xs" type="reset">
+            Reset Form
+          </Button>
+        </Flex>
         <Input sx={inputStyles} name="name" type="text" placeholder="Name" />
         <Input sx={inputStyles} name="date" type="date" placeholder="Date" />
 
@@ -37,14 +43,7 @@ export const CreateTask = () => {
           <Button type="button" mr={3} onClick={() => setFormOpen(false)}>
             Close
           </Button>
-          <Button
-            bg="Dark purple"
-            color="Ghost white"
-            type="submit"
-            sx={{ _hover: { bg: "Dark purple" } }}
-          >
-            Submit
-          </Button>
+          <SubmitButton>Submit</SubmitButton>
         </Flex>
       </Flex>
     </Flex>

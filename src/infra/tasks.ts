@@ -1,6 +1,7 @@
 "use server";
 
 import { Task } from "@/domain/Task";
+import { revalidateTag } from "next/cache";
 
 const BASE_API_URL = "http://localhost:3000/";
 
@@ -11,11 +12,13 @@ export const createTask = async (formData: FormData) => {
     end_date: formData.get("date"),
   };
 
-  fetch(`${BASE_API_URL}/api/v1/tasks`, {
+  await fetch(`${BASE_API_URL}/api/v1/tasks`, {
     method: "POST",
     body: JSON.stringify(data),
     headers: { "Content-type": "application/json; charset=UTF-8" },
   });
+
+  revalidateTag("tasks");
 };
 
 export const getTasks = async (
@@ -29,7 +32,9 @@ export const getTasks = async (
     searchParams.append("end_date", endDate);
   }
 
-  const response = await fetch(`${BASE_API_URL}/api/v1/tasks?${searchParams}`);
+  const response = await fetch(`${BASE_API_URL}/api/v1/tasks?${searchParams}`, {
+    next: { tags: ["tasks"] },
+  });
 
   if (!response.ok) {
     throw new Error("It wasn't this time :(");
